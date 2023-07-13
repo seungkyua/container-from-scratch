@@ -1,0 +1,73 @@
+================================================================
+# 1. exec 1 - container from scratch - init
+================================================================
+git checkout init
+
+echo $$
+hostname
+
+go run main.go run /bin/bash
+
+echo $$
+hostname job
+hostname
+exit
+
+echo $$
+hostname
+hostname ahnsk-docker
+
+
+
+
+================================================================
+# 2. exec 2 - container from scratch - uts
+================================================================
+git checkout uts
+
+echo $$
+hostname
+
+go run main.go run /bin/bash
+
+echo $$
+hostname job
+hostname
+exit
+
+echo $$
+hostname
+
+
+
+
+================================================================
+# 3. exec 3 - container from scratch - pid
+================================================================
+git checkout pid
+
+ps -ef
+echo $$
+
+go run main.go run echo container running
+
+go run main.go run /bin/bash
+ps -ef
+echo $$
+exit
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

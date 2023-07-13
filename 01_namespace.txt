@@ -1,0 +1,89 @@
+================================================================
+# 1. exec 1
+================================================================
+ls -al /proc/1/ns
+lsns -p 1
+
+echo $$
+ps afx | grep -B4 -A4 $(echo $$)
+
+lsns -p $(echo $$)
+
+
+================================================================
+# 2. exec 2 - uts
+================================================================
+echo $$
+unshare -u
+echo $$
+
+lsns -p [pid]
+
+hostname dev-young
+hostname
+
+
+================================================================
+# 3. exec 3 - pid, mnt
+================================================================
+mkdir -p /root/sample_rootfs
+docker run -d --name ubuntu --rm ubuntu:20.04 sleep 36000
+docker cp ubuntu:/ sample_rootfs/
+docker rm -f ubuntu
+
+
+
+echo $$
+unshare -p -f
+echo $$
+
+ps afx
+ls /proc
+exit
+
+unshare -p -f -m chroot /root/sample_rootfs
+mount -t proc proc /proc
+ls /proc
+
+
+================================================================
+# 4. exec 4 - single network namespace
+================================================================
+ip addr show
+
+ip netns add red
+ip netns
+
+ip link add veth1-r type veth peer veth2-r
+ip link
+
+ip link set veth2-r netns red
+ip link
+ip netns exec red ip link
+
+ip netns exec red ip address add 192.168.0.1 dev veth2-r
+ip netns exec red ip addr show
+ip netns exec red ip link set dev veth2-r up
+ip netns exec red ip addr show
+
+ip addr show
+ip link set dev veth1-r up
+ip addr show
+
+route -en
+ip route add 192.168.0.1/32 dev veth1-r
+route -en
+
+ping 192.168.0.1
+
+ip netns exec red route -en
+ip route add default via 192.168.0.1 dev veth2-r
+ip netns exec red route -en
+
+ping 192.168.0.1
+
+ip netns del red
+
+
+
+
